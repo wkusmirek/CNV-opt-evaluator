@@ -3,11 +3,11 @@ run_CNVCALLER.EVALUATOR <- function(calls,
                                     targets,
                                     seg_dups,
                                     parameters){
-  TP <- 0
-  TP_for_FP <- 0
-  FP <- 0
-  TN <- 0
-  FN <- 0
+  TP_all <- 0
+  TP_for_FP_all <- 0
+  FP_all <- 0
+  TN_all <- 0
+  FN_all <- 0
   calls[,"chr"] <- as.character(calls[,"chr"])
   refs[,"chr"] <- as.character(refs[,"chr"])
   targets[,"chr"] <- as.character(targets[,"chr"])
@@ -24,6 +24,11 @@ run_CNVCALLER.EVALUATOR <- function(calls,
   num_of_original_samples_in_refs <- length(samples)
   chromosomes <- c(1:22, "X", "Y", paste0("chr",c(1:22, "X", "Y")))
   for(chromosome in chromosomes) {
+    TP <- 0
+    TP_for_FP <- 0
+    FP <- 0
+    TN <- 0
+    FN <- 0
     print(paste("Processing chr: ", chromosome, sep=""))
     calls_for_chr <- subset(calls, chr == chromosome) # calls
     refs_for_chr <- subset(refs, chr == chromosome) # refs
@@ -102,18 +107,16 @@ run_CNVCALLER.EVALUATOR <- function(calls,
     print(confusion_matrix)
     print(calc_quality_statistics(TP, FP, TN, FN))
 
-    TP <- TP + confusion_matrix$TP
-    FP <- FP + confusion_matrix$FP
-    TN <- TN + confusion_matrix$TN
-    FN <- FN + confusion_matrix$FN
+    TP_all <- TP_all + confusion_matrix$TP
+    FP_all <- FP_all + confusion_matrix$FP
+    TN_all <- TN_all + confusion_matrix$TN
+    FN_all <- FN_all + confusion_matrix$FN
   }
-  quality_statistics <- calc_quality_statistics(TP, FP, TN, FN)
-  print(quality_statistics)
-
-  return(list(TP=TP,
-              FP=FP,
-              TN=TN,
-              FN=FN,
+  quality_statistics <- calc_quality_statistics(TP_all, FP_all, TN_all, FN_all)
+  return(list(TP=TP_all,
+              FP=FP_all,
+              TN=TN_all,
+              FN=FN_all,
               sensitivity=round(quality_statistics$sensitivity, digits=3), 
               specificity=round(quality_statistics$specificity, digits=3), 
               precision=round(quality_statistics$precision, digits=3), 

@@ -1,8 +1,8 @@
-install.packages('devtools')
-install.packages('optparse')
-install.packages('stringr')
+#install.packages('devtools')
+#install.packages('optparse')
+#install.packages('stringr')
 library('devtools')
-install('CNVCALLER.EVALUATOR')
+#install('CNVCALLER.EVALUATOR')
 
 #!/usr/bin/env Rscript
 options(java.parameters = "-Xmx1512m")

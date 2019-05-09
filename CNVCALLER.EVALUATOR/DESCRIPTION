@@ -1,0 +1,13 @@
+Package: CNVCALLER.EVALUATOR
+Title: CNVCALLER.EVALUATOR  A Package To Evaluate CNV Callers Results
+Version: 0.0.1
+Authors@R: c(
+    person("Tomasz", "Gambin", email = "tgambin@gmail.com", role = c("aut", "cre")),
+    person("Marek", "Wiewiórka", email = "marek.wiewiorka@gmail.com", role = c("aut")),
+    person("Wiktor", "Kuśmirek", email = "kusmirekwiktor@gmail.com", role = c("aut")))
+Description: A package to evaluate CNV callers results.
+Depends:
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1.9000

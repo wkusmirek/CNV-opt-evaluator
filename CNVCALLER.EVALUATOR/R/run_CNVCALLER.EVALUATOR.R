@@ -24,18 +24,14 @@ run_CNVCALLER.EVALUATOR <- function(calls,
   num_of_original_samples_in_refs <- length(samples)
   chromosomes <- c(1:22, "X", "Y", paste0("chr",c(1:22, "X", "Y")))
   for(chromosome in chromosomes) {
-    #chromosome <- '1'  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     print(paste("Processing chr: ", chromosome, sep=""))
     calls_for_chr <- calls # subset(calls, chr == chromosome)
     refs_for_chr <- refs # subset(refs, chr == chromosome)
     targets_for_chr <- subset(targets, chr == chromosome)
     seg_dups_for_chr <- subset(seg_dups, chr == chromosome)
-    print(targets_for_chr[2,"chr"])
-    print(seg_dups_for_chr)
     ## transfomating seg_dups to targets overlapped with seg_dups
     indexes_to_delete <- c()
     for (i in 1:nrow(targets_for_chr)) {
-      print(i)
       num_of_seg_dups <- nrow(subset(seg_dups_for_chr, chr == targets_for_chr[i,'chr'] & !((targets_for_chr[i,'ed_bp'] < st_bp) | (ed_bp < targets_for_chr[i,'st_bp']))))
       if (num_of_seg_dups > 0) {
         indexes_to_delete <- c(indexes_to_delete, i)
@@ -68,45 +64,40 @@ run_CNVCALLER.EVALUATOR <- function(calls,
     if (nrow(calls_for_chr) == 0 && nrow(refs_for_chr) == 0) {  # TODO
       next()
     }
-    ## TO SPEED UP
-    #if(chromosome == '1') {
-      for(sample in samples) {
-        calls_for_chr_for_sample <- subset(calls_for_chr, sample_name == sample)
-        refs_for_chr_for_sample <- subset(refs_for_chr, sample_name == sample)
-        calls_for_chr_for_TP_for_sample <- subset(calls_for_chr_for_TP, sample_name == sample)
-        refs_for_chr_for_TP_for_sample <- subset(refs_for_chr_for_TP, sample_name == sample)
-        if (nrow(calls_for_chr_for_sample) == 0 && nrow(refs_for_chr_for_sample) == 0) {  # TODO
-          # next()
-        } else {
-          intersection_matrix <- build_intersection_matrix(calls_for_chr_for_sample, refs_for_chr_for_sample)
-          intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
-          num_of_original_targets_in_refs <- 10 #nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
-          confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
-          TP_for_FP <- TP_for_FP + confusion_matrix$TP
-          FP <- FP + confusion_matrix$FP
-          TN <- TN + confusion_matrix$TN
-          FN <- FN + confusion_matrix$FN
-        }
-
-        if (nrow(calls_for_chr_for_TP_for_sample) == 0 && nrow(refs_for_chr_for_TP_for_sample) == 0) {  # TODO
-          # next()
-        } else {
-          intersection_matrix <- build_intersection_matrix(calls_for_chr_for_TP_for_sample, refs_for_chr_for_TP_for_sample)
-          intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
-          num_of_original_targets_in_refs <- 10 #nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
-          confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
-          TP <- TP + (nrow(refs_for_chr_for_TP_for_sample) - confusion_matrix$FN)
-        }
+    for(sample in samples) {
+      calls_for_chr_for_sample <- subset(calls_for_chr, sample_name == sample)
+      refs_for_chr_for_sample <- subset(refs_for_chr, sample_name == sample)
+      calls_for_chr_for_TP_for_sample <- subset(calls_for_chr_for_TP, sample_name == sample)
+      refs_for_chr_for_TP_for_sample <- subset(refs_for_chr_for_TP, sample_name == sample)
+      if (nrow(calls_for_chr_for_sample) == 0 && nrow(refs_for_chr_for_sample) == 0) {  # TODO
+        # next()
+      } else {
+        intersection_matrix <- build_intersection_matrix(calls_for_chr_for_sample, refs_for_chr_for_sample)
+        intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
+        num_of_original_targets_in_refs <- 10 #nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
+        confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
+        TP_for_FP <- TP_for_FP + confusion_matrix$TP
+        FP <- FP + confusion_matrix$FP
+        TN <- TN + confusion_matrix$TN
+        FN <- FN + confusion_matrix$FN
       }
-      confusion_matrix$TP <- TP
-      confusion_matrix$FP <- nrow(calls_for_chr) - TP_for_FP
-      confusion_matrix$TN <- TN
-      confusion_matrix$FN <- FN
-      print(confusion_matrix)
-      print(calc_quality_statistics(TP, FP, TN, FN))
-    #}
-    ## TO SPEED UP
-    #exit(0)
+
+      if (nrow(calls_for_chr_for_TP_for_sample) == 0 && nrow(refs_for_chr_for_TP_for_sample) == 0) {  # TODO
+        # next()
+      } else {
+        intersection_matrix <- build_intersection_matrix(calls_for_chr_for_TP_for_sample, refs_for_chr_for_TP_for_sample)
+        intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
+        num_of_original_targets_in_refs <- 10 #nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
+        confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
+        TP <- TP + (nrow(refs_for_chr_for_TP_for_sample) - confusion_matrix$FN)
+      }
+    }
+    confusion_matrix$TP <- TP
+    confusion_matrix$FP <- nrow(calls_for_chr) - TP_for_FP
+    confusion_matrix$TN <- TN
+    confusion_matrix$FN <- FN
+    print(confusion_matrix)
+    print(calc_quality_statistics(TP, FP, TN, FN))
 
     #intersection_matrix <- build_intersection_matrix(calls_for_chr, refs_for_chr)
     #intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)

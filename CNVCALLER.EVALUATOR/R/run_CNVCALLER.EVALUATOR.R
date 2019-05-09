@@ -24,7 +24,7 @@ run_CNVCALLER.EVALUATOR <- function(calls,
   num_of_original_samples_in_refs <- length(samples)
   chromosomes <- c(1:22, "X", "Y", paste0("chr",c(1:22, "X", "Y")))
   for(chromosome in chromosomes) {
-    chromosome <- '1'  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #chromosome <- '1'  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     print(paste("Processing chr: ", chromosome, sep=""))
     calls_for_chr <- calls # subset(calls, chr == chromosome)
     refs_for_chr <- refs # subset(refs, chr == chromosome)
@@ -65,14 +65,12 @@ run_CNVCALLER.EVALUATOR <- function(calls,
     # TODO delete seg_dups from ref and after that also from calls (cnvs for the same positions)
     #refs_for_chr <- filter_cnvs_by_seg_dups(refs_for_chr, seg_dups_for_chr, seg_dups_filter_enable)
     calls_for_chr <- filter_cnvs_by_seg_dups(calls_for_chr, seg_dups_for_chr, seg_dups_filter_enable)
-    print(nrow(refs_for_chr))
     if (nrow(calls_for_chr) == 0 && nrow(refs_for_chr) == 0) {  # TODO
       next()
     }
     ## TO SPEED UP
-    if(chromosome == '1') {
+    #if(chromosome == '1') {
       for(sample in samples) {
-        print(sample)
         calls_for_chr_for_sample <- subset(calls_for_chr, sample_name == sample)
         refs_for_chr_for_sample <- subset(refs_for_chr, sample_name == sample)
         calls_for_chr_for_TP_for_sample <- subset(calls_for_chr_for_TP, sample_name == sample)
@@ -90,10 +88,6 @@ run_CNVCALLER.EVALUATOR <- function(calls,
           FN <- FN + confusion_matrix$FN
         }
 
-        print("asd")
-        print(nrow(refs_for_chr_for_TP_for_sample))
-        print(nrow(refs_for_chr_for_sample))
-
         if (nrow(calls_for_chr_for_TP_for_sample) == 0 && nrow(refs_for_chr_for_TP_for_sample) == 0) {  # TODO
           # next()
         } else {
@@ -103,10 +97,6 @@ run_CNVCALLER.EVALUATOR <- function(calls,
           confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
           TP <- TP + (nrow(refs_for_chr_for_TP_for_sample) - confusion_matrix$FN)
         }
-
-
-
-        print(sample)
       }
       confusion_matrix$TP <- TP
       confusion_matrix$FP <- nrow(calls_for_chr) - TP_for_FP
@@ -114,22 +104,22 @@ run_CNVCALLER.EVALUATOR <- function(calls,
       confusion_matrix$FN <- FN
       print(confusion_matrix)
       print(calc_quality_statistics(TP, FP, TN, FN))
-    }
+    #}
     ## TO SPEED UP
-    exit(0)
+    #exit(0)
 
-    intersection_matrix <- build_intersection_matrix(calls_for_chr, refs_for_chr)
-    intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
+    #intersection_matrix <- build_intersection_matrix(calls_for_chr, refs_for_chr)
+    #intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
     # FIXME
-    targets_in_refs <- refs_for_chr[,c("chr", "st_bp", "ed_bp")]
-    num_of_original_targets_in_refs <- nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
-    confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
-    TP <- TP + confusion_matrix$TP
-    FP <- FP + confusion_matrix$FP
-    TN <- TN + confusion_matrix$TN
-    FN <- FN + confusion_matrix$FN
-    print(confusion_matrix)
-    print(calc_quality_statistics(confusion_matrix$TP, confusion_matrix$FP, confusion_matrix$TN, confusion_matrix$FN))
+    #targets_in_refs <- refs_for_chr[,c("chr", "st_bp", "ed_bp")]
+    #num_of_original_targets_in_refs <- nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
+    #confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
+    #TP <- TP + confusion_matrix$TP
+    #FP <- FP + confusion_matrix$FP
+    #TN <- TN + confusion_matrix$TN
+    #FN <- FN + confusion_matrix$FN
+    #print(confusion_matrix)
+    #print(calc_quality_statistics(confusion_matrix$TP, confusion_matrix$FP, confusion_matrix$TN, confusion_matrix$FN))
   }
   quality_statistics <- calc_quality_statistics(TP, FP, TN, FN)
   return(list(TP=TP,

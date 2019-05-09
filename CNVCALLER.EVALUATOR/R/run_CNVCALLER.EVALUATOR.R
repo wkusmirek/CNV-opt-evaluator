@@ -25,8 +25,11 @@ run_CNVCALLER.EVALUATOR <- function(calls,
   chromosomes <- c(1:22, "X", "Y", paste0("chr",c(1:22, "X", "Y")))
   for(chromosome in chromosomes) {
     print(paste("Processing chr: ", chromosome, sep=""))
-    calls_for_chr <- calls # subset(calls, chr == chromosome)
-    refs_for_chr <- refs # subset(refs, chr == chromosome)
+    calls_for_chr <- subset(calls, chr == chromosome) # calls
+    refs_for_chr <- subset(refs, chr == chromosome) # refs
+    if (nrow(calls_for_chr) == 0 && nrow(refs_for_chr) == 0) {
+      next()
+    }
     targets_for_chr <- subset(targets, chr == chromosome)
     seg_dups_for_chr <- subset(seg_dups, chr == chromosome)
     ## transfomating seg_dups to targets overlapped with seg_dups
@@ -99,20 +102,14 @@ run_CNVCALLER.EVALUATOR <- function(calls,
     print(confusion_matrix)
     print(calc_quality_statistics(TP, FP, TN, FN))
 
-    #intersection_matrix <- build_intersection_matrix(calls_for_chr, refs_for_chr)
-    #intersection_matrix <- filter_intersection_matrix_by_overlap_factor(intersection_matrix, parameters$min_overlap_factor)
-    # FIXME
-    #targets_in_refs <- refs_for_chr[,c("chr", "st_bp", "ed_bp")]
-    #num_of_original_targets_in_refs <- nrow(targets_in_refs[!duplicated(targets_in_refs[,c("chr", "st_bp", "ed_bp")]),])
-    #confusion_matrix <- calc_confusion_matrix(intersection_matrix, num_of_original_targets_in_refs, num_of_original_samples_in_refs)
-    #TP <- TP + confusion_matrix$TP
-    #FP <- FP + confusion_matrix$FP
-    #TN <- TN + confusion_matrix$TN
-    #FN <- FN + confusion_matrix$FN
-    #print(confusion_matrix)
-    #print(calc_quality_statistics(confusion_matrix$TP, confusion_matrix$FP, confusion_matrix$TN, confusion_matrix$FN))
+    TP <- TP + confusion_matrix$TP
+    FP <- FP + confusion_matrix$FP
+    TN <- TN + confusion_matrix$TN
+    FN <- FN + confusion_matrix$FN
   }
   quality_statistics <- calc_quality_statistics(TP, FP, TN, FN)
+  print(quality_statistics)
+
   return(list(TP=TP,
               FP=FP,
               TN=TN,

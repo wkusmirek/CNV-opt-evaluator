@@ -43,7 +43,7 @@ filter_cnvs_by_frequency <- function(calls, min_frequency, max_frequency){
       if (!is.element(i, indexes_to_delete)) {
         cnv <- calls[i,]
         frequency <- calc_cnv_frequency(cnv, calls)
-        print(frequency)
+        #print(frequency)
         if (frequency < min_frequency || frequency > max_frequency) {
           indexes_to_delete <- c(indexes_to_delete, which(with(calls, chr == calls[i,'chr'] &
                                                                       st_bp == calls[i,'st_bp'] &

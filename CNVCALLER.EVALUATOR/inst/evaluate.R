@@ -1,16 +1,9 @@
-#install.packages('devtools')
-#install.packages('optparse')
-#install.packages('stringr')
-library('devtools')
-#install('CNVCALLER.EVALUATOR')
-
 #!/usr/bin/env Rscript
-options(java.parameters = "-Xmx1512m")
-#library(devtools)
+
+library('devtools')
 library('CNVCALLER.EVALUATOR')
-library(optparse)
-#library(RJDBC)
-library(stringr)
+library('optparse')
+library('stringr')
 
 option_list <- list(
   make_option("--calls_table", default="public.wiktor_calls_k_to",
@@ -110,9 +103,9 @@ calls <- read_cnv_table(parameters$calls_table, conn_psql, opt$scenario_id, opt$
 print(calls[1:5,])
 refs <- read_cnv_table(parameters$refs_table, conn_psql, opt$scenario_id, opt$min_lratio, opt$max_lratio)
 print(refs[1:5,])
-targets <- read.delim('/home/vboxsmyrna/CNV/ref/ref_exons.tsv') # read_targets_table(parameters$targets_table, conn_psql)
+targets <- read.delim(parameters$targets_table)
 print(targets[1:5,])
-seg_dups <- read.delim('/home/vboxsmyrna/CNV/ref/ref_seg_dups.tsv') # read_targets_table(parameters$seg_dups_table, conn_psql)
+seg_dups <- read.delim(parameters$seg_dups_table)
 print(seg_dups[1:5,])
 statistics <- run_evaluator(calls, refs, targets, seg_dups, parameters)
 print(statistics)
